@@ -10,6 +10,7 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.stereotype.Service;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.slf4j.Logger;
+import reactor.core.publisher.Flux;
 
 import java.util.UUID;
 
@@ -79,6 +80,13 @@ public class AIService {
         }
     }
 
-
-
+    public Flux<String> streamResponse(String question, String conversationId) {
+        final String id = conversationId != null ? conversationId : UUID.randomUUID().toString();
+        return chatClient.prompt()
+                .advisors(advisorspec -> advisorspec.param(ChatMemory.CONVERSATION_ID, id))
+                .user(question)
+                .stream()
+                .content();
+    }
 }
+
